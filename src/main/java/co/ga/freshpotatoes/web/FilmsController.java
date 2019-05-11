@@ -26,6 +26,7 @@ public class FilmsController {
   public Set<Film> recommendations(@@PathVariable Long film_id,
                                    @RequestParam (required = false) Integer offset,
                                    @RequestParam (required = false) Integer limit) {
-      return new java.util.LinkedHashSet<Film>();
+    Film film = this.filmRepository.findById(film_id);
+    return new java.util.LinkedHashSet<Film>();
   }
 }
