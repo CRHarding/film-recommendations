@@ -52,7 +52,7 @@ public class FilmsController {
         filteredFilmsByDate.add(f);
       }
     }
-    
+
     List<Film> sortedFilms = new ArrayList<>(filteredFilmsByDate);
     Collections.sort(sortedFilms);
     return new java.util.LinkedHashSet<Film>(sortedFilms);
