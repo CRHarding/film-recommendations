@@ -98,6 +98,11 @@ public class FilmsController {
       }
       List<Film> sortedFilms = new ArrayList<>(filteredFilmsByDate);
       Collections.sort(sortedFilms);
+
+      if (offset != null && ((offset + limit) <= sortedFilms.size())) {
+        sortedFilms = sortedFilms.subList(offset, limit);
+      }
+
       return ResponseEntity.ok(sortedFilms);
     } else {
       return ResponseEntity.ok("No film found with that id, try again!");
