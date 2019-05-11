@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import co.ga.freshpotatoes.domain.entity.Film;
@@ -26,7 +27,16 @@ public class FilmsController {
   public Set<Film> recommendations(@@PathVariable Long film_id,
                                    @RequestParam (required = false) Integer offset,
                                    @RequestParam (required = false) Integer limit) {
+
     Film film = this.filmRepository.findById(film_id);
+    Genre genre = this.genreRepository.findOne(film.getGenre().getId());
+
+    Set<Film> films = genre.getFilms();
+
+    LocalDate originalDate = LocalDate.parse(film.getReleaseDate());
+    LocalDate originalDatePlusFifteen = originalDate.plusYears(15);
+    LocalDate originalDateMinusFifteen = originalDate.plusYears(-15);
+
     return new java.util.LinkedHashSet<Film>();
   }
 }
