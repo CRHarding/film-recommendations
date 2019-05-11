@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import co.ga.freshpotatoes.domain.entity.Film;
 import co.ga.freshpotatoes.domain.entity.Genre;
@@ -50,10 +49,10 @@ public class FilmsController {
           filteredFilmsByDate = new HashSet<>();
         }
 
-        System.out.println("Initial---" + originalDate);
-        System.out.println("Before----" + originalDateMinusFifteen);
-        System.out.println("After-----" + originalDatePlusFifteen);
-        System.out.println("New-------" + newDate);
+        filteredFilmsByDate.add(f);
+
+        List<Film> sortedFilms = new ArrayList<>(filteredFilmsByDate);
+        Collections.sort(sortedFilms);
       }
     }
 
