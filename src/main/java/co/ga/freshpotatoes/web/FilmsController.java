@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import co.ga.freshpotatoes.domain.entity.Film;
@@ -24,7 +25,7 @@ public class FilmsController {
   private static final String template = "id=%s, offset=%s, limit=%s\n";
 
   @RequestMapping(value="/films/{film_id}/recommendations", method=RequestMethod.GET)
-  public Set<Film> recommendations(@@PathVariable Long film_id,
+  public Set<Film> recommendations(@PathVariable Long film_id,
                                    @RequestParam (required = false) Integer offset,
                                    @RequestParam (required = false) Integer limit) {
 
@@ -32,10 +33,29 @@ public class FilmsController {
     Genre genre = this.genreRepository.findOne(film.getGenre().getId());
 
     Set<Film> films = genre.getFilms();
+    Set<Film> filteredFilmsByDate = null;
 
     LocalDate originalDate = LocalDate.parse(film.getReleaseDate());
     LocalDate originalDatePlusFifteen = originalDate.plusYears(15);
     LocalDate originalDateMinusFifteen = originalDate.plusYears(-15);
+
+    for (Film f : films) {
+      LocalDate newDate = LocalDate.parse(f.getReleaseDate());
+
+      if ((newDate.compareTo(originalDatePlusFifteen) > 0)
+              || (newDate.compareTo(originalDateMinusFifteen) > 0)
+              || newDate.compareTo(originalDate) == 0) {
+
+        if (filteredFilmsByDate == null) {
+          filteredFilmsByDate = new HashSet<>();
+        }
+
+        System.out.println("Initial---" + originalDate);
+        System.out.println("Before----" + originalDateMinusFifteen);
+        System.out.println("After-----" + originalDatePlusFifteen);
+        System.out.println("New-------" + newDate);
+      }
+    }
 
     return new java.util.LinkedHashSet<Film>();
   }
