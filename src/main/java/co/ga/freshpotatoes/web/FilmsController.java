@@ -40,10 +40,14 @@ public class FilmsController {
     Film film = this.filmRepository.findById(film_id);
 
     if (film != null) {
-
       Genre genre = this.genreRepository.findOne(film.getGenre().getId());
 
       Set<Film> films = genre.getFilms();
+
+      if (films == null) {
+        return ResponseEntity.ok("No films found, try again!");
+      }
+
       Set<Film> filteredFilmsByDate = null;
 
       LocalDate originalDate = LocalDate.parse(film.getReleaseDate());
@@ -96,7 +100,7 @@ public class FilmsController {
       Collections.sort(sortedFilms);
       return ResponseEntity.ok(sortedFilms);
     } else {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+      return ResponseEntity.ok("No film found with that id, try again!");
     }
   }
 }
