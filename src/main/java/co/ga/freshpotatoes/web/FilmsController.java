@@ -84,8 +84,6 @@ public class FilmsController {
 
               if (rating / numRatings > 4.0) {
                 filteredFilmsByDate.add(f);
-                System.out.println(f);
-                System.out.println(rating / numRatings);
               }
             }
           }
