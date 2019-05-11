@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface FilmRepository extends CrudRepository<Film, Long> {
   List<Film> findByGenre(Genre genre);
+  Film findById(Long filmId);
 }
