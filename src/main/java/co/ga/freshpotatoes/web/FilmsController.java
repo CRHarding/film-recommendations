@@ -67,8 +67,20 @@ public class FilmsController {
           JSONArray reviews = jsonObj.getJSONArray("reviews");
 
           if (reviews.length() > 5) {
-            filteredFilmsByDate.add(f);
-            System.out.println(reviews.length());
+            double rating = 0.0;
+            int numRatings = 0;
+
+            for (int j = 0; j < reviews.length(); j++) {
+              JSONObject ratingObject = reviews.getJSONObject(j);
+              rating = rating + (int) ratingObject.get("rating");
+              numRatings = numRatings + 1;
+            }
+
+            if (rating / numRatings > 4.0) {
+              filteredFilmsByDate.add(f);
+              System.out.println(f);
+              System.out.println(rating / numRatings);
+            }
           }
         }
       }
