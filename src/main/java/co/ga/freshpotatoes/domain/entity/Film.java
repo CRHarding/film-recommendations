@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "films")
-public class Film {
+public class Film implements Comparable {
     private long id;
     private Genre genre;
     private String title;
@@ -131,6 +131,14 @@ public class Film {
 
     public void setArtists(Set<Artist> artists) {
         this.artists = artists;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Film f = (Film)o;
+        if ((f.getId() - this.getId()) < 0) return -1;
+        if ((f.getId() - this.getId()) > 0) return 1;
+        return 0;
     }
 
     @Override
