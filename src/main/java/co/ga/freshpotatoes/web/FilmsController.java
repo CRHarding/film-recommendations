@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.json.JSONArray;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,8 +61,15 @@ public class FilmsController {
 
         JSONArray reviewObject = new JSONArray(resp);
 
+        for (int i = 0; i < reviewObject.length(); i++) {
+          JSONObject jsonObj = reviewObject.getJSONObject(i);
+          Object k = jsonObj.keys().next();
+          JSONArray reviews = jsonObj.getJSONArray("reviews");
 
-        filteredFilmsByDate.add(f);
+          System.out.println(reviews);
+        }
+
+          filteredFilmsByDate.add(f);
       }
     }
 
