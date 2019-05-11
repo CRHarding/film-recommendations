@@ -23,7 +23,9 @@ public class FilmsController {
   private static final String template = "id=%s, offset=%s, limit=%s\n";
 
   @RequestMapping(value="/films/{film_id}/recommendations", method=RequestMethod.GET)
-  public Set<Film> recommendations(@PathVariable Long film_id) {
+  public Set<Film> recommendations(@@PathVariable Long film_id,
+                                   @RequestParam (required = false) Integer offset,
+                                   @RequestParam (required = false) Integer limit) {
       return new java.util.LinkedHashSet<Film>();
   }
 }
