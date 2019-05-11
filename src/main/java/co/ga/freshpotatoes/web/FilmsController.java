@@ -66,10 +66,11 @@ public class FilmsController {
           Object k = jsonObj.keys().next();
           JSONArray reviews = jsonObj.getJSONArray("reviews");
 
-          System.out.println(reviews);
+          if (reviews.length() > 5) {
+            filteredFilmsByDate.add(f);
+            System.out.println(reviews.length());
+          }
         }
-
-          filteredFilmsByDate.add(f);
       }
     }
 
