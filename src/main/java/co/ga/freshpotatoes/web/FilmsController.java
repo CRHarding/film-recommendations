@@ -1,6 +1,8 @@
 package co.ga.freshpotatoes.web;
 
 import org.json.JSONException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,65 +31,72 @@ public class FilmsController {
   private static final String template = "id=%s, offset=%s, limit=%s\n";
 
   @RequestMapping(value="/films/{film_id}/recommendations", method=RequestMethod.GET)
-  public Set<Film> recommendations(@PathVariable Long film_id,
+  public ResponseEntity<?> recommendations(@PathVariable Long film_id,
                                    @RequestParam (required = false) Integer offset,
                                    @RequestParam (required = false) Integer limit) throws JSONException {
 
+    if (limit == null) limit = 10;
+
     Film film = this.filmRepository.findById(film_id);
-    Genre genre = this.genreRepository.findOne(film.getGenre().getId());
 
-    Set<Film> films = genre.getFilms();
-    Set<Film> filteredFilmsByDate = null;
+    if (film != null) {
 
-    LocalDate originalDate = LocalDate.parse(film.getReleaseDate());
-    LocalDate originalDatePlusFifteen = originalDate.plusYears(15);
-    LocalDate originalDateMinusFifteen = originalDate.plusYears(-15);
+      Genre genre = this.genreRepository.findOne(film.getGenre().getId());
 
-    for (Film f : films) {
-      LocalDate newDate = LocalDate.parse(f.getReleaseDate());
+      Set<Film> films = genre.getFilms();
+      Set<Film> filteredFilmsByDate = null;
 
-      if ((newDate.compareTo(originalDatePlusFifteen) > 0)
-              || (newDate.compareTo(originalDateMinusFifteen) > 0)
-              || newDate.compareTo(originalDate) == 0) {
+      LocalDate originalDate = LocalDate.parse(film.getReleaseDate());
+      LocalDate originalDatePlusFifteen = originalDate.plusYears(15);
+      LocalDate originalDateMinusFifteen = originalDate.plusYears(-15);
 
-        if (filteredFilmsByDate == null) {
-          filteredFilmsByDate = new HashSet<>();
-        }
+      for (Film f : films) {
+        LocalDate newDate = LocalDate.parse(f.getReleaseDate());
 
-        final String uri = "http://credentials-api.generalassemb.ly/4576f55f-c427-4cfc-a11c-5bfe914ca6c1?films=" + f.getId();
+        if ((newDate.compareTo(originalDatePlusFifteen) > 0)
+                || (newDate.compareTo(originalDateMinusFifteen) > 0)
+                || newDate.compareTo(originalDate) == 0) {
 
-        RestTemplate restTemplate = new RestTemplate();
-        String resp = restTemplate.getForObject(uri, String.class);
+          if (filteredFilmsByDate == null) {
+            filteredFilmsByDate = new HashSet<>();
+          }
 
-        JSONArray reviewObject = new JSONArray(resp);
+          final String uri = "http://credentials-api.generalassemb.ly/4576f55f-c427-4cfc-a11c-5bfe914ca6c1?films=" + f.getId();
 
-        for (int i = 0; i < reviewObject.length(); i++) {
-          JSONObject jsonObj = reviewObject.getJSONObject(i);
-          Object k = jsonObj.keys().next();
-          JSONArray reviews = jsonObj.getJSONArray("reviews");
+          RestTemplate restTemplate = new RestTemplate();
+          String resp = restTemplate.getForObject(uri, String.class);
 
-          if (reviews.length() > 5) {
-            double rating = 0.0;
-            int numRatings = 0;
+          JSONArray reviewObject = new JSONArray(resp);
 
-            for (int j = 0; j < reviews.length(); j++) {
-              JSONObject ratingObject = reviews.getJSONObject(j);
-              rating = rating + (int) ratingObject.get("rating");
-              numRatings = numRatings + 1;
-            }
+          for (int i = 0; i < reviewObject.length(); i++) {
+            JSONObject jsonObj = reviewObject.getJSONObject(i);
+            Object k = jsonObj.keys().next();
+            JSONArray reviews = jsonObj.getJSONArray("reviews");
 
-            if (rating / numRatings > 4.0) {
-              filteredFilmsByDate.add(f);
-              System.out.println(f);
-              System.out.println(rating / numRatings);
+            if (reviews.length() > 5) {
+              double rating = 0.0;
+              int numRatings = 0;
+
+              for (int j = 0; j < reviews.length(); j++) {
+                JSONObject ratingObject = reviews.getJSONObject(j);
+                rating = rating + (int) ratingObject.get("rating");
+                numRatings = numRatings + 1;
+              }
+
+              if (rating / numRatings > 4.0) {
+                filteredFilmsByDate.add(f);
+                System.out.println(f);
+                System.out.println(rating / numRatings);
+              }
             }
           }
         }
       }
+      List<Film> sortedFilms = new ArrayList<>(filteredFilmsByDate);
+      Collections.sort(sortedFilms);
+      return ResponseEntity.ok(sortedFilms);
+    } else {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
-
-    List<Film> sortedFilms = new ArrayList<>(filteredFilmsByDate);
-    Collections.sort(sortedFilms);
-    return new java.util.LinkedHashSet<Film>(sortedFilms);
   }
 }
